@@ -2,6 +2,9 @@ package me.airdash.managers;
 
 import me.airdash.AirDashPlugin;
 import org.bukkit.entity.Player;
+import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.Damageable;
+import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.util.Vector;
 
 import java.util.HashMap;
@@ -47,6 +50,23 @@ public class DashManager {
 
         // Aplica o impulso — um único setVelocity, física do MC faz o resto
         player.setVelocity(impulse);
+
+        // Reduz a durabilidade das botas de ouro
+        int durabilityLoss = plugin.getConfig().getInt("dash-durability-cost", 5);
+        ItemStack boots = player.getInventory().getBoots();
+        if (boots != null) {
+            ItemMeta meta = boots.getItemMeta();
+            if (meta instanceof Damageable damageable) {
+                int newDamage = damageable.getDamage() + durabilityLoss;
+                if (newDamage >= boots.getType().getMaxDurability()) {
+                    // Bota destruída
+                    player.getInventory().setBoots(null);
+                } else {
+                    damageable.setDamage(newDamage);
+                    boots.setItemMeta(meta);
+                }
+            }
+        }
 
         // Registra o cooldown
         cooldowns.put(player.getUniqueId(), System.currentTimeMillis() + (cooldownSecs * 1000L));
