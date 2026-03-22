@@ -1,0 +1,20 @@
+# ==============================
+# AirDash - Configurações
+# ==============================
+
+# Força do impulso do dash
+# Valores de referência:
+#   0.8  = suave (dá pra controlar bem)
+#   1.5  = médio (padrão, bem satisfatório)
+#   2.5  = forte (quase um foguete)
+#   4.0+ = muito forte (cuidado com dano de queda)
+dash-force: 1.5
+
+# Cooldown em segundos entre usos
+cooldown-seconds: 5
+
+# Mensagem de cooldown ({segundos} será substituído pelo tempo restante)
+cooldown-message: "§cHabilidade em cooldown em §e{segundos} §csegundo(s)!"
+
+# Mensagem ao usar o dash
+dash-activated-message: "§aDash!"
