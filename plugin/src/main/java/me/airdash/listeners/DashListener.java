@@ -25,27 +25,17 @@ public class DashListener implements Listener {
      */
     @EventHandler
     public void onSneak(PlayerToggleSneakEvent event) {
-        // Só ativa quando o jogador COMEÇA a agachar (não solta)
+        // Só ativa quando o jogador COMEÇA a agachar (não ao soltar)
         if (!event.isSneaking()) return;
 
         Player player = event.getPlayer();
 
-        // Verifica se o player está no ar (não no chão)
-        if (player.isOnGround()) {
-            return;
-        }
+        // Deve estar no ar
+        if (player.isOnGround()) return;
 
-        // Verifica se o player já está em dash ativo (evita spam)
-        if (dashManager.isInDash(player)) {
-            return;
-        }
-
-        // Verifica se o player tem botas de ouro equipadas
+        // Verifica bota de ouro
         ItemStack boots = player.getInventory().getBoots();
-        if (boots == null || boots.getType() != Material.GOLDEN_BOOTS) {
-            // Não tem botas de ouro: sem mensagem pra não ser intrusivo
-            return;
-        }
+        if (boots == null || boots.getType() != Material.GOLDEN_BOOTS) return;
 
         // Verifica cooldown
         int secondsLeft = dashManager.getCooldownSecondsLeft(player);
@@ -58,19 +48,13 @@ public class DashListener implements Listener {
             return;
         }
 
-        // Tudo certo: executa o dash!
+        // Executa o impulso!
         dashManager.startDash(player);
 
-        String activatedMsg = plugin.getConfig().getString(
-                "dash-activated-message",
-                "§aDAsh!"
-        );
+        String activatedMsg = plugin.getConfig().getString("dash-activated-message", "§aDash!");
         player.sendMessage(activatedMsg);
     }
 
-    /**
-     * Limpa dados do player ao sair do servidor.
-     */
     @EventHandler
     public void onQuit(PlayerQuitEvent event) {
         dashManager.removePlayer(event.getPlayer());
