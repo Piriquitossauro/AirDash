@@ -2,7 +2,6 @@ package me.airdash.managers;
 
 import me.airdash.AirDashPlugin;
 import org.bukkit.entity.Player;
-import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.util.Vector;
 
 import java.util.HashMap;
@@ -16,16 +15,13 @@ public class DashManager {
     // Mapa de cooldowns: UUID -> timestamp (ms) quando o cooldown termina
     private final Map<UUID, Long> cooldowns = new HashMap<>();
 
-    // Mapa de jogadores em dash ativo
-    private final Map<UUID, BukkitRunnable> activeDashes = new HashMap<>();
-
     public DashManager(AirDashPlugin plugin) {
         this.plugin = plugin;
     }
 
     /**
-     * Verifica se o jogador está em cooldown.
-     * @return segundos restantes, ou 0 se não estiver em cooldown
+     * Retorna os segundos de cooldown restantes.
+     * Retorna 0 se não houver cooldown ativo.
      */
     public int getCooldownSecondsLeft(Player player) {
         Long end = cooldowns.get(player.getUniqueId());
@@ -39,94 +35,27 @@ public class DashManager {
     }
 
     /**
-     * Verifica se o jogador está atualmente num dash ativo.
-     */
-    public boolean isInDash(Player player) {
-        return activeDashes.containsKey(player.getUniqueId());
-    }
-
-    /**
-     * Inicia o dash para o jogador dado.
+     * Aplica o impulso de dash na direção exata em que o player está olhando.
+     * A física do servidor cuida do resto (gravidade, colisão, queda etc.)
      */
     public void startDash(Player player) {
-        UUID uuid = player.getUniqueId();
+        double force         = plugin.getConfig().getDouble("dash-force", 1.5);
+        int    cooldownSecs  = plugin.getConfig().getInt("cooldown-seconds", 5);
 
-        // Cancela qualquer dash anterior (segurança)
-        cancelDash(player);
+        // Direção normalizada de onde o player está olhando (inclui Y)
+        Vector impulse = player.getLocation().getDirection().normalize().multiply(force);
 
-        // Pega configurações
-        double initialSpeed = plugin.getConfig().getDouble("dash-initial-speed", 0.7);
-        double friction = plugin.getConfig().getDouble("dash-friction", 0.85);
-        int durationTicks = plugin.getConfig().getInt("dash-duration-ticks", 20);
-        int cooldownSeconds = plugin.getConfig().getInt("cooldown-seconds", 5);
+        // Aplica o impulso — um único setVelocity, física do MC faz o resto
+        player.setVelocity(impulse);
 
-        // Direção horizontal do player (sem componente Y)
-        Vector direction = player.getLocation().getDirection();
-        direction.setY(0).normalize();
-
-        // Y fixo no momento do início do dash
-        final double fixedY = player.getLocation().getY();
-
-        BukkitRunnable dashTask = new BukkitRunnable() {
-            int ticks = 0;
-            double speed = initialSpeed;
-
-            @Override
-            public void run() {
-                // Segurança: cancela se o player saiu do servidor
-                if (!player.isOnline()) {
-                    cancelDash(player);
-                    cancel();
-                    return;
-                }
-
-                // Se chegou ao fim da duração, encerra o dash
-                if (ticks >= durationTicks || speed < 0.01) {
-                    cancelDash(player);
-                    cancel();
-                    return;
-                }
-
-                // Aplica velocidade horizontal + mantém Y fixo
-                Vector velocity = direction.clone().multiply(speed);
-
-                // Mantém o Y fixo: calcula o delta Y necessário para compensar gravidade
-                double currentY = player.getLocation().getY();
-                double deltaY = fixedY - currentY;
-                // Limita o delta para não ser extremo
-                deltaY = Math.max(-0.5, Math.min(0.5, deltaY));
-
-                velocity.setY(deltaY);
-                player.setVelocity(velocity);
-
-                // Descacelera para o próximo tick
-                speed *= friction;
-                ticks++;
-            }
-        };
-
-        dashTask.runTaskTimer(plugin, 0L, 1L);
-        activeDashes.put(uuid, dashTask);
-
-        // Aplica cooldown
-        cooldowns.put(uuid, System.currentTimeMillis() + (cooldownSeconds * 1000L));
+        // Registra o cooldown
+        cooldowns.put(player.getUniqueId(), System.currentTimeMillis() + (cooldownSecs * 1000L));
     }
 
     /**
-     * Cancela o dash ativo do jogador, se houver.
-     */
-    public void cancelDash(Player player) {
-        BukkitRunnable task = activeDashes.remove(player.getUniqueId());
-        if (task != null && !task.isCancelled()) {
-            task.cancel();
-        }
-    }
-
-    /**
-     * Remove todos os dados do jogador (usado ao deslogar, por exemplo).
+     * Remove dados do player ao deslogar.
      */
     public void removePlayer(Player player) {
-        cancelDash(player);
         cooldowns.remove(player.getUniqueId());
     }
 }
