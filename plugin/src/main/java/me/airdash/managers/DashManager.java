@@ -1,6 +1,7 @@
 package me.airdash.managers;
 
 import me.airdash.AirDashPlugin;
+import org.bukkit.Sound;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.Damageable;
@@ -59,7 +60,8 @@ public class DashManager {
             if (meta instanceof Damageable damageable) {
                 int newDamage = damageable.getDamage() + durabilityLoss;
                 if (newDamage >= boots.getType().getMaxDurability()) {
-                    // Bota destruída
+                    // Bota destruída — toca o som nativo de item quebrando
+                    player.playSound(player.getLocation(), Sound.ENTITY_ITEM_BREAK, 1.0f, 1.0f);
                     player.getInventory().setBoots(null);
                 } else {
                     damageable.setDamage(newDamage);
