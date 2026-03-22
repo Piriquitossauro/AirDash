@@ -10,6 +10,12 @@
 #   4.0+ = muito forte (cuidado com dano de queda)
 dash-force: 1.5
 
+# Durabilidade consumida da bota de ouro a cada dash
+# A bota de ouro tem 91 de durabilidade no total
+# Com 5 por uso: 18 dashes antes de quebrar
+# Com 10 por uso: 9 dashes antes de quebrar
+dash-durability-cost: 5
+
 # Cooldown em segundos entre usos
 cooldown-seconds: 5
 
