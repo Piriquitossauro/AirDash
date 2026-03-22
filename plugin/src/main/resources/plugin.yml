@@ -1,6 +1,0 @@
-name: AirDash
-version: 1.0
-main: me.airdash.AirDashPlugin
-api-version: '1.21'
-description: Dash no ar com botas de ouro!
-author: Custom
