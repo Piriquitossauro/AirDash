@@ -2,28 +2,19 @@
 # AirDash - Configurações
 # ==============================
 
-# Velocidade inicial do dash (blocos por tick)
-# 0.7 equivale aproximadamente a ~1 bloco para frente no burst inicial
-dash-initial-speed: 0.7
+# Força do impulso do dash
+# Valores de referência:
+#   0.8  = suave (dá pra controlar bem)
+#   1.5  = médio (padrão, bem satisfatório)
+#   2.5  = forte (quase um foguete)
+#   4.0+ = muito forte (cuidado com dano de queda)
+dash-force: 1.5
 
-# Fator de desaceleração a cada tick (0.0 a 1.0)
-# 0.85 = o dash perde 15% da velocidade a cada tick
-dash-friction: 0.85
-
-# Quantidade de ticks que o dash dura (20 ticks = 1 segundo)
-dash-duration-ticks: 20
-
-# Cooldown em segundos
+# Cooldown em segundos entre usos
 cooldown-seconds: 5
 
-# Mensagem de cooldown (use {segundos} como placeholder)
+# Mensagem de cooldown ({segundos} será substituído pelo tempo restante)
 cooldown-message: "§cHabilidade em cooldown em §e{segundos} §csegundo(s)!"
 
-# Mensagem quando o player não está no ar
-not-in-air-message: "§cVocê precisa estar no ar para usar o dash!"
-
-# Mensagem quando o player não tem botas de ouro
-no-boots-message: "§cVocê precisa de botas de ouro para usar o dash!"
-
-# Mensagem de ativação do dash
-dash-activated-message: "§aDAsh!"
+# Mensagem ao usar o dash
+dash-activated-message: "§aDash!"
